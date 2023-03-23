@@ -1,8 +1,13 @@
-write_string :: (s: string) #foreign WASM;
+// jai main.jai -plug wasm --- import_dir /path/to/wasm/plugin
+// Basic Hello World program
+
+console_log :: (s: string) #foreign WASM;
+alert :: (s: string) #foreign WASM;
 
 #program_export "main"
 main :: ()  {
-    write_string("Hello WASM!");
+    console_log("Hello Jai WASM!"); // prints to browser console
+    alert("Hello Jai WASM!"); 
 }
 
 #run {

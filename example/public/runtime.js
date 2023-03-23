@@ -2,6 +2,11 @@ let u8 = null;
 let allocated;
 const textDecoder = new TextDecoder();
 
+function readString(pointer, length) {
+    const bytes = u8.subarray(Number(pointer), Number(pointer) + Number(length));
+    return textDecoder.decode(bytes);
+}
+
 const exported = {
     sigemptyset: () => { },
     sigaction: () => { },
@@ -14,9 +19,15 @@ const exported = {
         return s;
     },
 
-    write_string: (count, buf, fd) => {
+    console_log: (count, buf) => {
         const string = readString(buf, count);
         console.log(string);
+        return count;
+    },
+
+    alert: (count, buf) => {
+        const string = readString(buf, count);
+        alert(string);
         return count;
     }
 }
@@ -33,10 +44,6 @@ const imports = {
     }),
 }
 
-function readString(pointer, length) {
-    const bytes = u8.subarray(Number(pointer), Number(pointer) + Number(length));
-    return textDecoder.decode(bytes);
-}
 
 WebAssembly.instantiateStreaming(fetch("main.wasm"), imports).then(
     (obj) => {

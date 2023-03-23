@@ -1,5 +1,3 @@
-// jai main.jai -plug wasm --- import_dir /Users/patriksmely/Documents/Projekty/jai_wasm
-
 Plugin :: Metaprogram_Plugin;
 
 WASM_Plugin :: struct {
@@ -121,8 +119,6 @@ shutdown :: (_p: *Plugin) {
     p := cast(*WASM_Plugin) _p;
     free(p);
 }
-
-#load "replacements.jai";
 
 #import "Basic";
 #import "String";
