@@ -45,4 +45,4 @@ main :: ()  {
 
 ## Credits
 
-This aproach is based on [jai-wasm](https://github.com/tsoding/jai-wasm) thanks!.
+This approach is based on [jai-wasm](https://github.com/tsoding/jai-wasm) thanks!
