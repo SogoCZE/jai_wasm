@@ -16,20 +16,33 @@ A prototype of a Metaprogram Plugin for compiling Jai to wasm32. Currently does 
 
 ## How to use
 
+### Compilation
 
-### Calling foreign JavaScript functions
+- Include the WASM Metaprogram Plugin in your `build.jai`. 
+- Or compile your program with the following command `jai main.jai -plug wasm --- import_dir /path/to/wasm/plugin`
+
+### JavaScript -> Jai
 Define foreign JavaScript functions with a foreign directive in the following way:
 
 ```c++ 
 alert :: (s: string) #foreign WASM;
 ```
 
-### Compilation
+### Jai -> JavaScript
+Export Jai procedures with `#program_export` directive. Optionally you can specify export name `#program_export "export_name"`.
 
-- Include the WASM Metaprogram Plugin in your `build.jai`. 
-- Or compile your program with the following command `jai main.jai -plug wasm --- import_dir /path/to/wasm/plugin`
+```c++
+#program_export
+main :: ()  {
+    ...
+}
+```
 
 ## How to compile hello world example
 
 - Compile `main.jai` with the WASM metaprogram plugin with the following command `jai main.jai -plug wasm --- import_dir /path/to/wasm/plugin`.
 - Serve `public` folder with local HTTP server.
+
+## Credits
+
+This aproach is based on [jai-wasm](https://github.com/tsoding/jai-wasm) thanks!.

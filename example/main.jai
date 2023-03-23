@@ -4,7 +4,7 @@
 console_log :: (s: string) #foreign WASM;
 alert :: (s: string) #foreign WASM;
 
-#program_export "main"
+#program_export
 main :: ()  {
     console_log("Hello Jai WASM!"); // prints to browser console
     alert("Hello Jai WASM!"); 
