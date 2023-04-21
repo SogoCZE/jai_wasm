@@ -3,6 +3,7 @@ Plugin :: Metaprogram_Plugin;
 WASM_Plugin :: struct {
     #as using base: Plugin;
     should_run := true;
+    wasm64232_path: string;
 }
 
 get_plugin :: () -> *Plugin {
@@ -13,7 +14,18 @@ get_plugin :: () -> *Plugin {
     p.add_source = add_source;
     p.before_intercept = before_intercept;
 
-    return p;   
+    wasm64232_name: string;
+    if OS == {
+        case .WINDOWS;
+            wasm64232_name = "wasm64232_windows.exe";
+        case .MACOS;
+            wasm64232_name = "wasm64232_mac";
+        case .LINUX;
+            wasm64232_name = "wasm64232_linux";
+    }
+
+    p.wasm64232_path = get_absolute_path(tprint("%tools/%", #filepath, wasm64232_name));
+    return p;
 }
 
 add_source :: (_p: *Metaprogram_Plugin) {
@@ -27,12 +39,12 @@ before_intercept :: (_p: *Plugin, flags: *Intercept_Flags) {
     options := get_build_options(p.workspace);
 
     options.llvm_options.enable_split_modules = false;
-    options.llvm_options.target_system_triple = "wasm64";
     options.llvm_options.function_sections = true; // To get around "LLVM ERROR: section already has a defining function: .text"
+    options.llvm_options.target_system_triple = "wasm64-unknown-unknown";
     options.use_custom_link_command = true; // wasm-ld
     options.output_type = .DYNAMIC_LIBRARY;
-    options.lazy_foreign_function_lookups = true; 
-    // options.os_target = .NONE; 
+    options.lazy_foreign_function_lookups = true;
+    // options.os_target = .NONE;
 
     import_paths: [..]string;
 
@@ -40,7 +52,7 @@ before_intercept :: (_p: *Plugin, flags: *Intercept_Flags) {
 
     array_add(*import_paths, tprint("%modules", #filepath));
 
-    options.import_path = import_paths; 
+    options.import_path = import_paths;
 
     // remap_import(p.workspace, "*", "Runtime_Support", "Runtime_Support_WASM");
 
@@ -81,24 +93,14 @@ cmd :: (args: .. string, loc := #caller_location) {
 
 message :: (_p: *Plugin, message: *Message) {
     p := cast(*WASM_Plugin) _p;
-    o := get_build_options(p.workspace);
 
     if message.kind == .TYPECHECKED remove_asm_blocks(p, xx message, p.workspace);
 
     if message.kind == .PHASE {
         phase := cast(*Message_Phase) message;
-            
-        if phase.phase == .READY_FOR_CUSTOM_LINK_COMMAND {
-            wasm64232_name: string;
 
-            if OS == {
-                case .WINDOWS;
-                    wasm64232_name = "wasm64232_windows.exe";
-                case .MACOS;
-                    wasm64232_name = "wasm64232_mac";
-                case .LINUX;
-                    wasm64232_name = "wasm64232_linux";
-            }
+        if phase.phase == .READY_FOR_CUSTOM_LINK_COMMAND {
+            o := get_build_options(p.workspace);
 
             object_path := phase.compiler_generated_object_files[0];
 
@@ -108,7 +110,7 @@ message :: (_p: *Plugin, message: *Message) {
             wasm32_file_path := tprint("%/%.wasm", o.output_path, o.output_executable_name);
 
             cmd("wasm-ld", "-mwasm64", "--no-entry", "--stack-first", "--export-all", "-z", tprint("stack-size=%", STACK_SIZE), "--allow-undefined", object_path, "-o", wasm64_file_path);
-            cmd(tprint("%/tools/%", #filepath, wasm64232_name), "-o", wasm32_file_path, wasm64_file_path);
+            cmd(p.wasm64232_path, "-o", wasm32_file_path, wasm64_file_path);
             compiler_custom_link_command_is_complete(p.workspace);
         }
     }
@@ -121,6 +123,7 @@ shutdown :: (_p: *Plugin) {
 }
 
 #import "Basic";
-#import "String";
 #import "Compiler";
+#import "File";
 #import "Process";
+#import "String";
