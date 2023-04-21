@@ -72,6 +72,7 @@ remove_asm_blocks :: (p: *WASM_Plugin, tc: *Message_Typechecked, w: Workspace) {
 
         if contains_asm {
             body := it.expression;
+            log("Removing body of \"%\" because it contains #asm", body.header.name);
             new_statements: [..] *Code_Node;
             body.block.statements = new_statements;
             compiler_modify_procedure(w, body);
