@@ -1,4 +1,6 @@
 // jai main.jai -plug wasm --- import_dir /path/to/wasm/plugin
+// when running from git repo: jai main.jai -plug wasm --- import_dir ../
+
 // Basic Hello World program
 
 main :: ()  {
@@ -21,7 +23,7 @@ main :: ()  {
     }
     print("Builder result: \n%", builder_to_string(*builder));
 
-    // assert(false, "Asert test");
+    // assert(false, "Assert test");
 }
 
 #run {
