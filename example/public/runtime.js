@@ -1,35 +1,47 @@
-let u8 = null;
 let allocated;
 const textDecoder = new TextDecoder();
 
 function readString(pointer, length) {
+    const u8 = new Uint8Array(allocated.buffer)
     const bytes = u8.subarray(Number(pointer), Number(pointer) + Number(length));
     return textDecoder.decode(bytes);
 }
 
-const exported = {
-    sigemptyset: () => { },
-    sigaction: () => { },
-    pthread_mutex_lock: () => { },
+let console_buffer = "";
+let console_timeout = null;
 
-    memset: (s, c, n) => {
-        const buffer = allocated.buffer;
-        const bytes = new Uint8Array(buffer, Number(s), Number(n));
-        bytes.fill(c);
-        return s;
+function write_to_console_log(str) {
+    clearTimeout(console_timeout);
+    console_buffer += str;
+
+    if (str.includes("\n")) {
+        console.log(console_buffer);
+        console_buffer = "";
+        return;
+    }
+
+    console_timeout = setTimeout(() => {
+        console.log(console_buffer);
+        console_buffer = "";
+    }, 3);
+}
+
+const exported = {
+    wasm_write: (count, buf) => {
+        const string = readString(buf, count);
+        write_to_console_log(string);
+        return count;
     },
 
-    console_log: (count, buf) => {
-        const string = readString(buf, count);
-        console.log(string);
-        return count;
+    wasm_debug_break: () => {
+        debugger;
     },
 
     alert: (count, buf) => {
         const string = readString(buf, count);
         alert(string);
         return count;
-    }
+    },
 }
 
 const imports = {
@@ -48,7 +60,6 @@ const imports = {
 WebAssembly.instantiateStreaming(fetch("main.wasm"), imports).then(
     (obj) => {
         allocated = obj.instance.exports.memory;
-        u8 = new Uint8Array(allocated.buffer)
         obj.instance.exports.main(BigInt(0));
     }
 );

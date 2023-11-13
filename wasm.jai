@@ -41,10 +41,12 @@ before_intercept :: (_p: *Plugin, flags: *Intercept_Flags) {
     options.llvm_options.enable_split_modules = false;
     options.llvm_options.function_sections = true; // To get around "LLVM ERROR: section already has a defining function: .text"
     options.llvm_options.target_system_triple = "wasm64-unknown-unknown";
+    options.llvm_options.target_system_features = "+bulk-memory";
     options.use_custom_link_command = true; // wasm-ld
-    options.output_type = .DYNAMIC_LIBRARY;
+    options.output_type = .EXECUTABLE;
     options.lazy_foreign_function_lookups = true;
-    // options.os_target = .NONE;
+    options.cpu_target = .CUSTOM;
+    options.emit_debug_info = .DWARF;
 
     import_paths: [..]string;
 
@@ -54,7 +56,7 @@ before_intercept :: (_p: *Plugin, flags: *Intercept_Flags) {
 
     options.import_path = import_paths;
 
-    // remap_import(p.workspace, "*", "Runtime_Support", "Runtime_Support_WASM");
+    remap_import(p.workspace, "*", "Runtime_Support", "Runtime_Support_WASM");
 
     set_build_options(options, p.workspace);
 
@@ -75,7 +77,7 @@ remove_asm_blocks :: (p: *WASM_Plugin, tc: *Message_Typechecked, w: Workspace) {
             log("Removing body of \"%\" because it contains #asm", body.header.name);
             new_statements: [..] *Code_Node;
             body.block.statements = new_statements;
-            compiler_modify_procedure(w, body);
+            // compiler_modify_procedure(w, body);
         }
     }
 }
@@ -110,8 +112,8 @@ message :: (_p: *Plugin, message: *Message) {
             wasm64_file_path := tprint("%/%_64.wasm", path_strip_filename(object_path), o.output_executable_name);
             wasm32_file_path := tprint("%/%.wasm", o.output_path, o.output_executable_name);
 
-            cmd("wasm-ld", "-mwasm64", "--no-entry", "--stack-first", "--export-all", "-z", tprint("stack-size=%", STACK_SIZE), "--allow-undefined", object_path, "-o", wasm64_file_path);
-            cmd(p.wasm64232_path, "-o", wasm32_file_path, wasm64_file_path);
+            cmd("wasm-ld", "-mwasm64", "--no-entry", "--stack-first", "--export-all", "-z", tprint("stack-size=%", STACK_SIZE), "--allow-undefined", object_path, "./walloc.o", "-o", wasm32_file_path);
+            // cmd(p.wasm64232_path, "-o", wasm32_file_path, wasm64_file_path);
             compiler_custom_link_command_is_complete(p.workspace);
         }
     }
