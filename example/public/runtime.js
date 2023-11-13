@@ -10,26 +10,28 @@ function readString(pointer, length) {
 let console_buffer = "";
 let console_timeout = null;
 
-function write_to_console_log(str) {
+function write_to_console_log(str, error) {
     clearTimeout(console_timeout);
     console_buffer += str;
 
+    const print_func = !error ? console.log : console.error;
+
     if (str.includes("\n")) {
-        console.log(console_buffer);
+        print_func(console_buffer);
         console_buffer = "";
         return;
     }
 
     console_timeout = setTimeout(() => {
-        console.log(console_buffer);
+        print_func(console_buffer);
         console_buffer = "";
     }, 3);
 }
 
 const exported = {
-    wasm_write: (count, buf) => {
+    wasm_write: (count, buf, error) => {
         const string = readString(buf, count);
-        write_to_console_log(string);
+        write_to_console_log(string, error);
         return count;
     },
 

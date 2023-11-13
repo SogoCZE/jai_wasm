@@ -2,7 +2,7 @@
 
 WASM :: #library "WASM";
 
-wasm_write        :: (s: string) #foreign WASM;
+wasm_write        :: (s: string, to_standard_error: bool) #foreign WASM;
 wasm_debug_break  :: () #foreign WASM;
 
 // @Cleanup: __element_duplicate should lose its c_call status, and also be faster...!
@@ -285,7 +285,7 @@ __arithmetic_overflow :: (left: s64, right: s64, type_code: u16, line_number: s6
 }
 
 write_string_unsynchronized :: (s: string, to_standard_error := false) #no_context {
-    wasm_write(s);
+    wasm_write(s, to_standard_error);
 }
 
 write_string :: (s: string, to_standard_error := false) #no_context #compiler {
