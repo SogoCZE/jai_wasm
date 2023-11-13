@@ -113,13 +113,17 @@ message :: (_p: *Plugin, message: *Message) {
 
             object_path := phase.compiler_generated_object_files[0];
 
-            STACK_SIZE :: 4194304 - 1024 * 12;
 
             wasm64_file_path := tprint("%/%_64.wasm", path_strip_filename(object_path), o.output_executable_name);
             wasm32_file_path := tprint("%/%.wasm", o.output_path, o.output_executable_name);
 
-            cmd("wasm-ld", "-mwasm64", "--no-entry", "--stack-first", "--export-all", "-z", tprint("stack-size=%", STACK_SIZE), "--allow-undefined", object_path, "./walloc.o", "-o", wasm32_file_path);
-            // cmd(p.wasm64232_path, "-o", wasm32_file_path, wasm64_file_path);
+
+            // Old wasm-ld link with predefined stack-size (which seems unnecessary):
+            // STACK_SIZE :: 24 * 1024;
+            // cmd("wasm-ld", "-mwasm64", "--no-entry", "--stack-first", "--export-all", "-z", tprint("stack-size=%", STACK_SIZE), "--import-undefined", object_path, "./walloc.o", "-o", wasm32_file_path);
+            
+            cmd("wasm-ld", "-mwasm64", "--no-entry", "--export-all", "--import-undefined", object_path, "./walloc.o", "-o", wasm32_file_path);
+            // cmd(p.wasm64232_path, "-o", wasm32_file_path, wasm64_file_path); // Converting the 64 wasm to 32 one
             compiler_custom_link_command_is_complete(p.workspace);
         }
     }

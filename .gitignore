@@ -1,1 +1,16 @@
+# Jai
 .build
+
+# Mac
+.DS_Store
+*.dSYM
+*.dylib
+
+# Windows
+*.dll
+*.exp
+*.lib
+*.pdb
+
+# Linux
+*.so
