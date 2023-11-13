@@ -1,6 +1,5 @@
 # Jai WASM Plugin
-
-A prototype of a Metaprogram Plugin for compiling Jai to wasm32. Currently does not handle heap memory allocations - you could use a JavaScript heap allocator from [Jai Wasm GL](https://github.com/kujukuju/JaiWasmGL). The plan is to implement a heap memory allocator in Jai once the Jai compiler supports WASM LLVM Intrinsics.
+A prototype of a Metaprogram Plugin for compiling Jai to wasm64 (and maybe wasm32).
 
 ## How it works?
 
