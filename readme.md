@@ -7,38 +7,35 @@ A prototype of a Metaprogram Plugin for compiling Jai to wasm32. Currently does 
 - The Metaprogram Plugin sets the LLVM target triple to `wasm64`.
 - It then strips all procedure bodies that contain inline assembly (we need to provide non-asm alternatives in the future).
 - After, it links the WASM binary with the `wasm-ld`.
-- Finally, it uses the [wasm64232](https://github.com/tsoding/wabt-wasm64232) tool to convert the 64 WASM binary to 32 one.
-
-## TODO
-- Implement heap memory allocator in Jai (waiting for the compiler to support WASM LLVM Intrinsics)
-- Implement `memset` and `memcpy` in Jai or use LLVM WASM intrinsics [(memory.fill, memory.copy)](https://webassembly.github.io/bulk-memory-operations/).
-- Provide and replace the default `runtime support` and `preload` modules with ones crafted for the WASM environment.
+- Optionally, it uses the [wasm64232](https://github.com/tsoding/wabt-wasm64232) tool to convert the 64 WASM binary to 32 one (this is currently untested).
 
 ## How to use
 
 ### Compilation
-
+- A tiny change in `Basic/Print.jai:3` is needed. Change it from `USE_SIMD :: true;` to `USE_SIMD :: CPU == .X64;`.
 - Include the WASM Metaprogram Plugin in your `build.jai`. 
 - Or compile your program with the following command `jai main.jai -plug wasm --- import_dir /path/to/wasm/plugin`
 
 ### JavaScript -> Jai
 Define foreign JavaScript functions with a foreign directive in the following way:
 
-```c++ 
+```go 
 alert :: (s: string) #foreign WASM;
 ```
 
 ### Jai -> JavaScript
-Export Jai procedures with `#program_export` directive. Optionally you can specify export name `#program_export "export_name"`.
+Export Jai procedures with `#program_export` directive. Optionally you can specify the export name `#program_export "export_name"`.
 
-```c++
+```go
 #program_export
-main :: ()  {
+render :: ()  {
     ...
 }
 ```
 
-## How to compile hello world example
+When compilation output is set to `executable` main is automatically exported.
+
+## How to compile the Hello World example
 
 - Compile `main.jai` with the WASM metaprogram plugin with the following command `jai main.jai -plug wasm --- import_dir /path/to/wasm/plugin`.
 - Serve `public` folder with local HTTP server.
