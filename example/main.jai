@@ -8,9 +8,20 @@ main :: ()  {
     array_add(*numbers, 20);
     array_add(*numbers, 30);
 
-    print("Hello Jai! %\n", numbers);
+    print("Hello Jai!\n");
 
-    assert(numbers.count == 4, "Array size does not match!");
+    for numbers {
+        print("numbers[%]: %\n", it_index, it);
+    }
+
+    builder: String_Builder;
+
+    for 0..10 {
+        append(*builder, sprint("Entry-%\n", it));
+    }
+    print("Builder result: \n%", builder_to_string(*builder));
+
+    // assert(false, "Asert test");
 }
 
 #run {
