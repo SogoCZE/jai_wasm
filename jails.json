@@ -1,0 +1,10 @@
+{
+    "local_modules": [
+        "modules"
+    ],
+    "roots": [
+        "example/main.jai",
+        "wasm.jai"
+    ],
+    "build_root": "main.jai"
+}

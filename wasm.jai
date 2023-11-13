@@ -122,7 +122,7 @@ message :: (_p: *Plugin, message: *Message) {
             // STACK_SIZE :: 24 * 1024;
             // cmd("wasm-ld", "-mwasm64", "--no-entry", "--stack-first", "--export-all", "-z", tprint("stack-size=%", STACK_SIZE), "--import-undefined", object_path, "./walloc.o", "-o", wasm32_file_path);
             
-            cmd("wasm-ld", "-mwasm64", "--no-entry", "--export-all", "--import-undefined", object_path, "./walloc.o", "-o", wasm32_file_path);
+            cmd("wasm-ld", "-mwasm64", "--no-entry", "--export-dynamic", "--import-undefined", object_path, "./walloc.o", "-o", wasm32_file_path);
             // cmd(p.wasm64232_path, "-o", wasm32_file_path, wasm64_file_path); // Converting the 64 wasm to 32 one
             compiler_custom_link_command_is_complete(p.workspace);
         }

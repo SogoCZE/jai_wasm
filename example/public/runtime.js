@@ -38,12 +38,6 @@ const exported = {
     wasm_debug_break: () => {
         debugger;
     },
-
-    alert: (count, buf) => {
-        const string = readString(buf, count);
-        alert(string);
-        return count;
-    },
 }
 
 const imports = {
@@ -53,7 +47,7 @@ const imports = {
                 return target[prop];
             }
 
-            return () => console.error("Missing function: " + prop);
+            return () => { throw new Error("Missing function: " + prop); };
         },
     }),
 }
@@ -62,6 +56,6 @@ const imports = {
 WebAssembly.instantiateStreaming(fetch("main.wasm"), imports).then(
     (obj) => {
         allocated = obj.instance.exports.memory;
-        obj.instance.exports.main(BigInt(0));
+        obj.instance.exports.main();
     }
 );

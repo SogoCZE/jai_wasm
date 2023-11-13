@@ -1,7 +1,11 @@
+#scope_module
+
 WASM :: #library "WASM";
 
 walloc_malloc :: (size: s64) -> *void #foreign WASM "malloc";
 walloc_free :: (p: *void) #foreign WASM "free";
+
+#scope_export
 
 walloc_allocator :: Allocator.{walloc_allocator_proc, null};
 
