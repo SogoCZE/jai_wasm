@@ -71,13 +71,19 @@ remove_asm_blocks :: (p: *WASM_Plugin, tc: *Message_Typechecked, w: Workspace) {
                 break;
             }
         }
+        
+        body := it.expression;
+
+        // Skipping removal of ASM in 'print_to_builder'. Make sure you have edited modules/Basic/Print:3 to 'USE_SIMD :: CPU == .X64;'
+        if contains_asm && body.header.name == "print_to_builder" {
+            return;
+        }
 
         if contains_asm {
-            body := it.expression;
             log("Removing body of \"%\" because it contains #asm", body.header.name);
             new_statements: [..] *Code_Node;
             body.block.statements = new_statements;
-            // compiler_modify_procedure(w, body);
+            compiler_modify_procedure(w, body);
         }
     }
 }
